@@ -1,6 +1,6 @@
 import os
 
-from config.default_config import DefaultConfig
+from src.configs.default_config import DefaultConfig
 
 
 class TestingConfig(DefaultConfig):

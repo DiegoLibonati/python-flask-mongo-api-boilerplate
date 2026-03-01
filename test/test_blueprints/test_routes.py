@@ -2,7 +2,7 @@ from flask import Flask
 from flask.testing import FlaskClient
 from pymongo.database import Database
 
-from config.mongo_config import mongo
+from src.configs.mongo_config import mongo
 
 
 class TestTemplateBlueprintRegistration:
@@ -80,8 +80,6 @@ class TestNonExistentRoutes:
 
 
 class TestBlueprintWithDatabaseInteraction:
-    def test_app_initializes_with_database(
-        self, app: Flask, clean_db: Database
-    ) -> None:
+    def test_app_initializes_with_database(self, app: Flask, clean_db: Database) -> None:
         assert mongo.db is not None
         assert mongo.client is not None

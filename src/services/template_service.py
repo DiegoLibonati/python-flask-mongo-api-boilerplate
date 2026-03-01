@@ -36,8 +36,6 @@ class TemplateService:
         existing = TemplateDAO.find_one_by_id(_id)
 
         if not existing:
-            raise NotFoundAPIError(
-                code=CODE_NOT_FOUND_TEMPLATE, message=MESSAGE_NOT_FOUND_TEMPLATE
-            )
+            raise NotFoundAPIError(code=CODE_NOT_FOUND_TEMPLATE, message=MESSAGE_NOT_FOUND_TEMPLATE)
 
         return TemplateDAO.delete_one_by_id(_id)

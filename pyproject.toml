@@ -1,0 +1,48 @@
+[project]
+name = "template-flask-api"
+version = "1.0.0"
+description = "Personal template for developing an API with Flask and MongoDB."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = ["test"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+log_cli = true
+log_cli_level = "WARNING"
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+env = [
+    "TEST_MONGO_HOST=localhost",
+    "TEST_MONGO_PORT=27018",
+    "TEST_MONGO_USER=admin",
+    "TEST_MONGO_PASS=secret123",
+    "TEST_MONGO_DB=test_db",
+    "D:MONGO_URI=mongodb://admin:secret123@localhost:27018/test_db?authSource=admin",
+    "MONGO_DB_NAME=test_db",
+    "MONGO_HOST=localhost",
+    "MONGO_PORT=27018",
+]
+
+
+[tool.ruff]
+line-length = 160
+exclude = [".git", "__pycache__", "env", "venv", "migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E203"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

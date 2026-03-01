@@ -1,7 +1,7 @@
 from src.constants import codes, messages
 
 
-class TestConstants:
+class TestCodesAndMessages:
     def test_codes_are_strings(self) -> None:
         for name in dir(codes):
             if name.startswith("CODE_"):

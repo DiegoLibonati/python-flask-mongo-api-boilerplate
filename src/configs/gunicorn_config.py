@@ -14,4 +14,4 @@ accesslog = "-"
 errorlog = "-"
 loglevel = "info"
 
-proc_name = "bookstore-server"
+proc_name = "template-server"

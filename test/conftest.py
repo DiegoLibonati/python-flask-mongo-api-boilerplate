@@ -1,7 +1,7 @@
 import os
 import subprocess
 import time
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 from flask import Flask
@@ -10,8 +10,8 @@ from pymongo import MongoClient
 from pymongo.database import Database
 
 from app import create_app
-from config.mongo_config import init_mongo, mongo
 from src.blueprints.routes import register_routes
+from src.configs.mongo_config import init_mongo, mongo
 from src.utils.exceptions import BaseAPIError
 
 TEST_MONGO_HOST = os.getenv("TEST_MONGO_HOST", "localhost")
@@ -36,14 +36,10 @@ def is_mongo_ready(uri: str, timeout: int = 30) -> bool:
 
 
 def start_docker_compose() -> None:
-    compose_file = os.path.join(
-        os.path.dirname(__file__), "..", "test.docker-compose.yml"
-    )
+    compose_file = os.path.join(os.path.dirname(__file__), "..", "test.docker-compose.yml")
 
     if not os.path.exists(compose_file):
-        raise FileNotFoundError(
-            f"The docker-compose file was not found: {compose_file}"
-        )
+        raise FileNotFoundError(f"The docker-compose file was not found: {compose_file}")
 
     subprocess.run(
         ["docker", "compose", "-f", compose_file, "up", "-d", "--wait"],
@@ -53,9 +49,7 @@ def start_docker_compose() -> None:
 
 
 def stop_docker_compose() -> None:
-    compose_file = os.path.join(
-        os.path.dirname(__file__), "..", "test.docker-compose.yml"
-    )
+    compose_file = os.path.join(os.path.dirname(__file__), "..", "test.docker-compose.yml")
 
     subprocess.run(
         ["docker", "compose", "-f", compose_file, "down", "-v"],
@@ -94,9 +88,7 @@ def docker_compose_up() -> Generator[None, None, None]:
 
 
 @pytest.fixture(scope="session")
-def mongo_client(
-    docker_compose_up: Generator[None, None, None]
-) -> Generator[MongoClient, None, None]:
+def mongo_client(docker_compose_up: Generator[None, None, None]) -> Generator[MongoClient, None, None]:
     client = MongoClient(TEST_MONGO_URI)
     yield client
     client.close()
@@ -201,9 +193,7 @@ def sample_templates() -> list[dict[str, str]]:
 
 
 @pytest.fixture
-def inserted_template(
-    app_without_startup: Flask, mongo_db: Database, sample_template: dict[str, str]
-) -> dict[str, str]:
+def inserted_template(app_without_startup: Flask, mongo_db: Database, sample_template: dict[str, str]) -> dict[str, str]:
     result = mongo_db.templates.insert_one(sample_template.copy())
     return {
         **sample_template,

@@ -15,9 +15,7 @@ class TestTemplateModel:
             TemplateModel(name="")
 
         errors = exc_info.value.errors()
-        assert any(
-            "min_length" in str(e) or "at least 1" in str(e).lower() for e in errors
-        )
+        assert any("min_length" in str(e) or "at least 1" in str(e).lower() for e in errors)
 
     def test_name_strips_whitespace(self) -> None:
         template = TemplateModel(name="  Spaced Template  ")

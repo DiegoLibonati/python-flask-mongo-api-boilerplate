@@ -1,11 +1,12 @@
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from pydantic import ValidationError
 from pymongo.errors import PyMongoError
 from typing_extensions import ParamSpec
 
-from config.logger_config import setup_logger
+from src.configs.logger_config import setup_logger
 from src.constants.codes import CODE_ERROR_DATABASE, CODE_ERROR_PYDANTIC
 from src.constants.messages import MESSAGE_ERROR_DATABASE, MESSAGE_ERROR_PYDANTIC
 from src.utils.exceptions import InternalAPIError, ValidationAPIError

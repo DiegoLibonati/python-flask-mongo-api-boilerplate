@@ -14,9 +14,7 @@ from src.utils.exceptions import ConflictAPIError, NotFoundAPIError
 
 
 class TestTemplateServiceAddTemplate:
-    def test_add_template_inserts_document(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_add_template_inserts_document(self, app_without_startup: Flask, mongo_db: Database) -> None:
         template = TemplateModel(name="New Template")
         result = TemplateService.add_template(template)
 
@@ -26,9 +24,7 @@ class TestTemplateServiceAddTemplate:
         assert doc is not None
         assert doc["name"] == "New Template"
 
-    def test_add_template_raises_conflict_for_duplicate(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_add_template_raises_conflict_for_duplicate(self, app_without_startup: Flask, mongo_db: Database) -> None:
         template = TemplateModel(name="Duplicate Template")
         TemplateService.add_template(template)
 
@@ -37,9 +33,7 @@ class TestTemplateServiceAddTemplate:
 
         assert exc_info.value.status_code == 409
 
-    def test_add_template_duplicate_is_case_insensitive(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_add_template_duplicate_is_case_insensitive(self, app_without_startup: Flask, mongo_db: Database) -> None:
         TemplateService.add_template(TemplateModel(name="MyTemplate"))
 
         with pytest.raises(ConflictAPIError):
@@ -48,9 +42,7 @@ class TestTemplateServiceAddTemplate:
         with pytest.raises(ConflictAPIError):
             TemplateService.add_template(TemplateModel(name="MYTEMPLATE"))
 
-    def test_add_template_returns_insert_result(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_add_template_returns_insert_result(self, app_without_startup: Flask, mongo_db: Database) -> None:
         template = TemplateModel(name="Another Template")
         result = TemplateService.add_template(template)
 
@@ -58,23 +50,17 @@ class TestTemplateServiceAddTemplate:
 
 
 class TestTemplateServiceGetAllTemplates:
-    def test_get_all_templates_returns_empty_list(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_get_all_templates_returns_empty_list(self, app_without_startup: Flask, mongo_db: Database) -> None:
         result = TemplateService.get_all_templates()
 
         assert result == []
 
-    def test_get_all_templates_returns_all(
-        self, inserted_templates: list[dict[str, str]]
-    ) -> None:
+    def test_get_all_templates_returns_all(self, inserted_templates: list[dict[str, str]]) -> None:
         result = TemplateService.get_all_templates()
 
         assert len(result) == len(inserted_templates)
 
-    def test_get_all_templates_returns_parsed_documents(
-        self, inserted_template: dict[str, str]
-    ) -> None:
+    def test_get_all_templates_returns_parsed_documents(self, inserted_template: dict[str, str]) -> None:
         result = TemplateService.get_all_templates()
 
         assert len(result) == 1
@@ -82,9 +68,7 @@ class TestTemplateServiceGetAllTemplates:
 
 
 class TestTemplateServiceDeleteTemplate:
-    def test_delete_template_removes_document(
-        self, inserted_template: dict[str, str], mongo_db: Database
-    ) -> None:
+    def test_delete_template_removes_document(self, inserted_template: dict[str, str], mongo_db: Database) -> None:
         assert mongo_db.templates.count_documents({}) == 1
 
         result = TemplateService.delete_template_by_id(inserted_template["_id"])
@@ -92,9 +76,7 @@ class TestTemplateServiceDeleteTemplate:
         assert result.deleted_count == 1
         assert mongo_db.templates.count_documents({}) == 0
 
-    def test_delete_template_raises_not_found(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_delete_template_raises_not_found(self, app_without_startup: Flask, mongo_db: Database) -> None:
         fake_id = str(ObjectId())
 
         with pytest.raises(NotFoundAPIError) as exc_info:
@@ -102,16 +84,12 @@ class TestTemplateServiceDeleteTemplate:
 
         assert exc_info.value.status_code == 404
 
-    def test_delete_template_returns_delete_result(
-        self, inserted_template: dict[str, str]
-    ) -> None:
+    def test_delete_template_returns_delete_result(self, inserted_template: dict[str, str]) -> None:
         result = TemplateService.delete_template_by_id(inserted_template["_id"])
 
         assert isinstance(result, DeleteResult)
 
-    def test_delete_template_only_removes_one(
-        self, inserted_templates: list[dict[str, str]], mongo_db: Database
-    ) -> None:
+    def test_delete_template_only_removes_one(self, inserted_templates: list[dict[str, str]], mongo_db: Database) -> None:
         initial_count = mongo_db.templates.count_documents({})
 
         TemplateService.delete_template_by_id(inserted_templates[0]["_id"])
@@ -121,17 +99,13 @@ class TestTemplateServiceDeleteTemplate:
 
 
 class TestTemplateServiceErrorCodes:
-    def test_conflict_error_has_correct_code(
-        self, inserted_template: dict[str, str]
-    ) -> None:
+    def test_conflict_error_has_correct_code(self, inserted_template: dict[str, str]) -> None:
         with pytest.raises(ConflictAPIError) as exc_info:
             TemplateService.add_template(TemplateModel(name=inserted_template["name"]))
 
         assert exc_info.value.code == CODE_ERROR_TEMPLATE_ALREADY_EXISTS
 
-    def test_not_found_error_has_correct_code(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_not_found_error_has_correct_code(self, app_without_startup: Flask, mongo_db: Database) -> None:
         with pytest.raises(NotFoundAPIError) as exc_info:
             TemplateService.delete_template_by_id(str(ObjectId()))
 
@@ -139,9 +113,7 @@ class TestTemplateServiceErrorCodes:
 
 
 class TestTemplateServiceIntegration:
-    def test_full_crud_cycle(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_full_crud_cycle(self, app_without_startup: Flask, mongo_db: Database) -> None:
         template = TemplateModel(name="CRUD Template")
         create_result = TemplateService.add_template(template)
         template_id = str(create_result.inserted_id)
@@ -156,9 +128,7 @@ class TestTemplateServiceIntegration:
         templates = TemplateService.get_all_templates()
         assert len(templates) == 0
 
-    def test_multiple_templates_management(
-        self, app_without_startup: Flask, mongo_db: Database
-    ) -> None:
+    def test_multiple_templates_management(self, app_without_startup: Flask, mongo_db: Database) -> None:
         names = ["Template A", "Template B", "Template C"]
         ids = []
 

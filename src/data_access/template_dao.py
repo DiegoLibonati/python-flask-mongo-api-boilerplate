@@ -3,7 +3,7 @@ from typing import Any
 from bson import ObjectId
 from pymongo.results import DeleteResult, InsertOneResult
 
-from config.mongo_config import mongo
+from src.configs.mongo_config import mongo
 
 
 class TemplateDAO:
@@ -17,17 +17,11 @@ class TemplateDAO:
 
     @staticmethod
     def find_one_by_id(_id: ObjectId) -> dict[str, Any] | None:
-        return TemplateDAO.parse_template(
-            mongo.db.templates.find_one({"_id": ObjectId(_id)})
-        )
+        return TemplateDAO.parse_template(mongo.db.templates.find_one({"_id": ObjectId(_id)}))
 
     @staticmethod
     def find_one_by_name(name: str) -> dict[str, Any] | None:
-        return TemplateDAO.parse_template(
-            mongo.db.templates.find_one(
-                {"name": {"$regex": f"^{name}$", "$options": "i"}}
-            )
-        )
+        return TemplateDAO.parse_template(mongo.db.templates.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}}))
 
     @staticmethod
     def delete_one_by_id(_id: ObjectId) -> DeleteResult:

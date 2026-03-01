@@ -1,4 +1,4 @@
-from config.default_config import DefaultConfig
+from src.configs.default_config import DefaultConfig
 
 
 class ProductionConfig(DefaultConfig):

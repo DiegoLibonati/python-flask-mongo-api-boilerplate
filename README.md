@@ -61,10 +61,7 @@ pytest==8.4.2
 pytest-env==1.1.5
 pytest-cov==4.1.0
 pytest-timeout==2.3.1
-pytest-cov==4.1.0
 pytest-xdist==3.5.0
-
-pytest-timeout==2.3.1
 ```
 
 ## Portfolio Link
@@ -109,20 +106,20 @@ PORT=5050
 ## Project Structure
 ```
 Template-Flask-Mongo-API/
-├── config/
-│   ├── __init__.py
-│   ├── default_config.py
-│   ├── development_config.py
-│   ├── production_config.py
-│   ├── testing_config.py
-│   ├── gunicorn_config.py
-│   ├── logger_config.py
-│   └── mongo_config.py
 ├── src/
 │   ├── blueprints/
 │   │   ├── routes.py
 │   │   └── v1/
 │   │       └── template_bp.py
+│   ├── configs/
+│   │   ├── __init__.py
+│   │   ├── default_config.py
+│   │   ├── development_config.py
+│   │   ├── production_config.py
+│   │   ├── testing_config.py
+│   │   ├── gunicorn_config.py
+│   │   ├── logger_config.py
+│   │   └── mongo_config.py
 │   ├── controllers/
 │   │   └── template_controller.py
 │   ├── services/
@@ -165,8 +162,8 @@ Template-Flask-Mongo-API/
 └── README.md
 ```
 
-1. `config` -> Contains all **configuration classes** organized by environment (development, production, testing). Includes database connection, logging setup, and server settings.
-2. `src` -> Root directory of the source code. Contains the full application logic following a **layered architecture** pattern.
+1. `src` -> Root directory of the source code. Contains the full application logic following a **layered architecture** pattern.
+2. `configs` -> Contains all **configuration classes** organized by environment (development, production, testing). Includes database connection, logging setup, and server settings.
 3. `blueprints` -> Defines **API routes and endpoints**. Organized by API version (`v1/`) to support versioning.
 4. `controllers` -> Handles **HTTP request/response logic**. Receives requests from blueprints and delegates business logic to services.
 5. `services` -> Contains **business logic and rules**. Validates data, enforces constraints, and orchestrates operations between controllers and data access layer.
@@ -183,7 +180,6 @@ Template-Flask-Mongo-API/
 16. `docker-compose.test.yml` -> Defines the **test environment** with MongoDB container for integration testing.
 17. `requirements.txt` -> Lists **production dependencies**.
 18. `requirements.test.txt` -> Lists **testing dependencies** (pytest, pytest-env, etc.).
-19. `pytest.ini` -> **Pytest configuration** including environment variables and test discovery settings.
 
 ## Architecture & Design Patterns
 
@@ -259,7 +255,7 @@ MongoDB                        →  Stores/retrieves data
 def create_app(config_name="development") -> Flask:
     app = Flask(__name__)
 
-    config_module = importlib.import_module(f"config.{config_name}_config")
+    config_module = importlib.import_module(f"src.configs.{config_name}_config")
     app.config.from_object(config_module.__dict__[f"{config_name.capitalize()}Config"])
 
     init_mongo(app)
@@ -402,7 +398,7 @@ def create_template() -> Response:
 
 **Purpose**: Ensures only one instance of a class exists throughout the application.
 
-**Location**: `config/mongo_config.py`
+**Location**: `src/configs/mongo_config.py`
 
 ```python
 class Mongo:
@@ -429,7 +425,7 @@ def init_mongo(app: Flask) -> None:
 **Usage**:
 
 ```python
-from config.mongo_config import mongo
+from src.configs.mongo_config import mongo
 
 # Always the same instance
 mongo.db.templates.find()
@@ -441,10 +437,10 @@ mongo.db.templates.find()
 
 **Purpose**: Defines a base structure that subclasses can customize by overriding specific parts.
 
-**Location**: `config/`
+**Location**: `src/configs/`
 
 ```python
-# config/default_config.py - Base template
+# src/configs/default_config.py - Base template
 class DefaultConfig:
     TZ = os.getenv("TZ", "America/Argentina/Buenos_Aires")
     
@@ -458,19 +454,19 @@ class DefaultConfig:
     TESTING = False
 
 
-# config/development_config.py - Customizes for development
+# src/configs/development_config.py - Customizes for development
 class DevelopmentConfig(DefaultConfig):
     DEBUG = True
 
 
-# config/testing_config.py - Customizes for testing
+# src/configs/testing_config.py - Customizes for testing
 class TestingConfig(DefaultConfig):
     TESTING = True
     DEBUG = True
     MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "test_db")
 
 
-# config/production_config.py - Customizes for production
+# src/configs/production_config.py - Customizes for production
 class ProductionConfig(DefaultConfig):
     DEBUG = False
     TESTING = False

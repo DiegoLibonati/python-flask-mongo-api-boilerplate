@@ -42,9 +42,7 @@ class TestTestErrorController:
 
 
 class TestControllerErrorHandling:
-    def test_handle_exceptions_decorator_catches_validation_error(
-        self, app: Flask
-    ) -> None:
+    def test_handle_exceptions_decorator_catches_validation_error(self, app: Flask) -> None:
         class StrictModel(BaseModel):
             value: int
 
