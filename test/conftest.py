@@ -68,22 +68,17 @@ def docker_compose_up() -> Generator[None, None, None]:
     skip_docker = os.getenv("SKIP_DOCKER_COMPOSE", "").lower() in ("true", "1", "yes")
 
     if not skip_docker:
-        print("\n🐳 Starting test containers...")
         try:
             start_docker_compose()
-        except subprocess.CalledProcessError as e:
-            print(f"Error starting docker-compose: {e}")
+        except subprocess.CalledProcessError:
             raise
 
     if not is_mongo_ready(TEST_MONGO_URI):
         raise RuntimeError("MongoDB is unavailable after the timeout.")
 
-    print("✅ MongoDB ready for testing.")
-
     yield
 
     if not skip_docker:
-        print("\n🧹 Stopping test containers...")
         stop_docker_compose()
 
 
