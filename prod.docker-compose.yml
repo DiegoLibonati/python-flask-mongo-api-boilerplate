@@ -1,0 +1,34 @@
+services:
+  template-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - template-db
+    ports:
+      - "5050:5050"
+    networks:
+      - template-net
+
+  template-db:
+    image: mongo:6
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret123
+      MONGO_INITDB_DATABASE: template_db
+    volumes:
+      - db-data:/data/db
+    networks:
+      - template-net
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  template-net:
+    driver: bridge
