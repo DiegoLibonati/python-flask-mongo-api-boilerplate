@@ -158,6 +158,7 @@ Template-Flask-Mongo-API/
 ├── .env
 ├── .env.example
 ├── .gitignore
+├── .pre-commit-config.yaml
 └── README.md
 ```
 
