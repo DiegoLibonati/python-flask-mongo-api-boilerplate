@@ -8,7 +8,7 @@ from src.configs.mongo_config import mongo
 
 class TemplateDAO:
     @staticmethod
-    def insert_one(template: dict) -> InsertOneResult:
+    def insert_one(template: dict[str, Any]) -> InsertOneResult:
         return mongo.db.templates.insert_one(template)
 
     @staticmethod

@@ -281,7 +281,7 @@ app = create_app("production")   # Production environment
 ```python
 class TemplateDAO:
     @staticmethod
-    def insert_one(template: dict) -> InsertOneResult:
+    def insert_one(template: dict[str, Any]) -> InsertOneResult:
         return mongo.db.templates.insert_one(template)
 
     @staticmethod
