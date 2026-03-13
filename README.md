@@ -26,9 +26,11 @@ NOTE: Install **pre-commit** inside repository folder.
 1. Join to the correct path of the clone
 2. Execute: `python -m venv venv`
 3. Execute in Windows: `venv\Scripts\activate`
-4. Execute: `pip install -r requirements.txt`
-5. Execute: `pip install -r requirements.test.txt`
-6. Execute all the commands you want
+4. Execute in Linux/Mac: `source venv/bin/activate`
+5. Execute: `pip install -r requirements.txt`
+6. Execute: `pip install -r requirements.dev.txt`
+7. Execute: `pip install -r requirements.test.txt`
+8. Execute all the commands you want
 
 ## Description
 
@@ -46,12 +48,18 @@ Personal template for developing an API with Flask and MongoDB.
 #### Requirements.txt
 
 ```
-flask==3.1.2
+flask==3.1.3
 pymongo==4.16.0
 pydantic==2.11.9
-werkzeug==3.1.3
+werkzeug==3.1.6
 gunicorn==23.0.0
+```
+
+#### Requirements.dev.txt
+
+```
 pre-commit==4.3.0
+pip-audit==2.7.3
 ```
 
 #### Requirements.test.txt
@@ -76,6 +84,15 @@ pytest-xdist==3.5.0
 4. Execute: `pip install -r requirements.txt`
 5. Execute: `pip install -r requirements.test.txt`
 6. Execute: `pytest --log-cli-level=INFO`
+
+## Security Audit
+
+You can check your dependencies for known vulnerabilities using **pip-audit**.
+
+1. Go to the repository folder
+2. Activate your virtual environment
+3. Execute: `pip install -r requirements.dev.txt`
+4. Execute: `pip-audit -r requirements.txt`
 
 ## Env Keys
 
@@ -136,7 +153,7 @@ Template-Flask-Mongo-API/
 │   │   └── init_templates.py
 │   └── utils/
 │       ├── exceptions.py
-│       ├── error_handler.py
+│       ├── exceptions_handler.py
 │       └── helpers.py
 ├── test/
 │   ├── conftest.py
@@ -154,6 +171,7 @@ Template-Flask-Mongo-API/
 ├── docker-compose.test.yml
 ├── requirements.txt
 ├── requirements.test.txt
+├── requirements.dev.txt
 ├── pyproject.toml
 ├── .env
 ├── .env.example
@@ -180,7 +198,8 @@ Template-Flask-Mongo-API/
 16. `docker-compose.test.yml` -> Defines the **test environment** with MongoDB container for integration testing.
 17. `requirements.txt` -> Lists **production dependencies**.
 18. `requirements.test.txt` -> Lists **testing dependencies** (pytest, pytest-env, etc.).
-19. `pyproject.toml` -> **Unified project configuration** for pytest, ruff, and project metadata.
+19. `requirements.test.txt` -> Lists **development dependencies** (pre-commit, pip-audit, etc.).
+20. `pyproject.toml` -> **Unified project configuration** for pytest, ruff, and project metadata.
 
 ## Architecture & Design Patterns
 
@@ -346,10 +365,10 @@ class TemplateService:
 
 **Purpose**: Adds behavior to functions without modifying them. Wraps functions to extend functionality.
 
-**Location**: `src/utils/error_handler.py`
+**Location**: `src/utils/exceptions_handler.py`
 
 ```python
-def handle_exceptions(fn: Callable[P, R]) -> Callable[P, R]:
+def exceptions_handler(fn: Callable[P, R]) -> Callable[P, R]:
     @wraps(fn)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         try:

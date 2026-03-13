@@ -17,7 +17,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def handle_exceptions(fn: Callable[P, R]) -> Callable[P, R]:
+def exceptions_handler(fn: Callable[P, R]) -> Callable[P, R]:
     @wraps(fn)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         try:

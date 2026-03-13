@@ -3,8 +3,8 @@ from flask import Flask
 from flask.testing import FlaskClient
 from pydantic import BaseModel
 
-from src.utils.error_handler import handle_exceptions
 from src.utils.exceptions import ValidationAPIError
+from src.utils.exceptions_handler import exceptions_handler
 
 
 class TestAliveController:
@@ -33,7 +33,7 @@ class TestTestErrorController:
         data = response.get_json()
         assert data["code"] == "CODE_TEMPLATE_ERROR_TEST_MESSAGE"
 
-    def test_test_error_is_handled_by_error_handler(self, client: FlaskClient) -> None:
+    def test_test_error_is_handled_by_exceptions_handler(self, client: FlaskClient) -> None:
         response = client.get("/api/v1/templates/test_error")
 
         data = response.get_json()
@@ -46,7 +46,7 @@ class TestControllerErrorHandling:
         class StrictModel(BaseModel):
             value: int
 
-        @handle_exceptions
+        @exceptions_handler
         def controller_with_validation_error():
             StrictModel(value="not an int")
 
