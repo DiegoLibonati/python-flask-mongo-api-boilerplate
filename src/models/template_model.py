@@ -1,5 +1,7 @@
-from pydantic import BaseModel, constr
+from typing import Annotated
+
+from pydantic import BaseModel, StringConstraints
 
 
 class TemplateModel(BaseModel):
-    name: constr(min_length=1, strip_whitespace=True)
+    name: Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
