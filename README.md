@@ -32,6 +32,41 @@ NOTE: Install **pre-commit** inside repository folder.
 7. Execute: `pip install -r requirements.test.txt`
 8. Execute all the commands you want
 
+## Getting Started for Production
+
+1. Clone the repository
+2. Set your production environment variables in `.env` (see **Env Keys** section)
+3. Go to the repository folder and execute: `docker-compose -f prod.docker-compose.yml build --no-cache` in the terminal
+4. Once built, execute: `docker-compose -f prod.docker-compose.yml up -d` in the terminal
+
+NOTE: The API server will only start after MongoDB passes its health check. The `restart: always` policy ensures both containers come back up automatically after a crash or reboot.
+
+### What's different from development
+
+| | Development | Production |
+|---|---|---|
+| Server | Flask dev server | Gunicorn (`wsgi.py`) |
+| Debug mode | `True` | `False` |
+| Docker image | Full build | Multi-stage slim image |
+| Container user | root | `appuser` (non-root) |
+| MongoDB data | Ephemeral | Persistent volume (`db-data`) |
+| MongoDB port | Exposed to host | Internal network only |
+
+### Gunicorn
+
+The production server is configured in `src/configs/gunicorn_config.py`:
+
+- **Workers**: `cpu_count * 2 + 1` (auto-scaled to the host machine)
+- **Threads**: `2` per worker
+- **Timeout**: `120s` (request), `30s` (graceful shutdown)
+- **Logs**: stdout/stderr (compatible with Docker log drivers)
+
+### Security considerations before deploying
+
+- Run `pip-audit -r requirements.txt` to check for known vulnerabilities in production dependencies
+- Replace the default MongoDB credentials in `.env` with strong, unique values
+- The production Dockerfile runs the app as a non-root user (`appuser`) — do not override this
+
 ## Description
 
 **Python Flask Mongo Api Boilerplate** is a production-ready boilerplate for building REST APIs with **Flask** and **MongoDB**, designed to eliminate the repetitive setup and architectural decisions that come with every new backend project.
