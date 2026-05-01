@@ -160,6 +160,8 @@ You can check your dependencies for known vulnerabilities using **pip-audit**.
 7. `MONGO_AUTH_SOURCE`: Defines the database where the user credentials will be verified. Typically set to `admin` when the credentials were created in that database.
 8. `HOST`: Refers to the network interface where the backend API listens (e.g., 0.0.0.0 to allow external connections).
 9. `PORT`: Refers to the port on which the backend API is exposed.
+10. `ME_BASICAUTH_USERNAME`: Username for the Mongo Express web UI basic authentication.
+11. `ME_BASICAUTH_PASSWORD`: Password for the Mongo Express web UI basic authentication.
 
 ```ts
 TZ=America/Argentina/Buenos_Aires
@@ -173,6 +175,9 @@ MONGO_AUTH_SOURCE=admin
 
 HOST=0.0.0.0
 PORT=5050
+
+ME_BASICAUTH_USERNAME=admin
+ME_BASICAUTH_PASSWORD=admin123
 ```
 
 ## Project Structure
