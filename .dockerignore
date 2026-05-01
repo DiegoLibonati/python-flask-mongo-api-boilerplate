@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment files
+.env*
+
+# Tests
+tests/
+
+# Dev tooling
+.pre-commit-config.yaml
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+*.docker-compose.yml
+.dockerignore
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docs & CI
+*.md
+LICENSE
+.claude/
