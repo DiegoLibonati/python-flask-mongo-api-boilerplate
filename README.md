@@ -105,7 +105,6 @@ The production server is configured in `src/configs/gunicorn_config.py`:
 flask==3.1.3
 pymongo==4.16.0
 pydantic==2.11.9
-werkzeug==3.1.6
 gunicorn==23.0.0
 ```
 
