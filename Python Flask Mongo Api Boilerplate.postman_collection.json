@@ -1,13 +1,13 @@
 {
   "info": {
-    "_postman_id": "0b3f6947-7eb8-414c-9791-15c0ce7f25a9",
+    "_postman_id": "d4f374f2-35a2-4940-86f0-ec9be6d4f6a7",
     "name": "Python Flask Mongo Api Boilerplate",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "27611586"
   },
   "item": [
     {
-      "name": "Templates",
+      "name": "Notes",
       "item": [
         {
           "name": "[GET] - Alive",
@@ -15,12 +15,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{API_URL}}/templates/alive",
+              "raw": "{{API_URL}}/notes/alive",
               "host": [
                 "{{API_URL}}"
               ],
               "path": [
-                "templates",
+                "notes",
                 "alive"
               ]
             }
@@ -32,43 +32,27 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{API_URL}}/templates/alive",
+                  "raw": "{{API_URL}}/notes/alive",
                   "host": [
                     "{{API_URL}}"
                   ],
                   "path": [
-                    "templates",
+                    "notes",
                     "alive"
                   ]
                 }
               },
               "status": "OK",
               "code": 200,
-              "_postman_previewlanguage": null,
+              "_postman_previewlanguage": "Text",
               "header": [
-                {
-                  "key": "Server",
-                  "value": "Werkzeug/3.1.3 Python/3.11.14"
-                },
-                {
-                  "key": "Date",
-                  "value": "Fri, 30 Jan 2026 15:30:11 GMT"
-                },
                 {
                   "key": "Content-Type",
                   "value": "application/json"
-                },
-                {
-                  "key": "Content-Length",
-                  "value": "111"
-                },
-                {
-                  "key": "Connection",
-                  "value": "close"
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"author\": \"Diego Libonati\",\n    \"message\": \"I am Alive!\",\n    \"name_bp\": \"Template\",\n    \"version_bp\": \"2.0.0\"\n}"
+              "body": "{\n    \"author\": \"Diego Libonati\",\n    \"message\": \"I am Alive!\",\n    \"name_bp\": \"Note\",\n    \"version_bp\": \"1.0.0\"\n}"
             }
           ]
         },
@@ -78,13 +62,235 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{API_URL}}/templates/test_error",
+              "raw": "{{API_URL}}/notes/test_error",
               "host": [
                 "{{API_URL}}"
               ],
               "path": [
-                "templates",
+                "notes",
                 "test_error"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Internal Server Error.",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{API_URL}}/notes/test_error",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    "test_error"
+                  ]
+                }
+              },
+              "status": "INTERNAL SERVER ERROR",
+              "code": 500,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"CODE_NOTE_ERROR_TEST_MESSAGE\",\n    \"message\": \"NoteError test message.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "[POST] - Create Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"my note\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{API_URL}}/notes/",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "notes",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Conflict.",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"my note\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{API_URL}}/notes/",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    ""
+                  ]
+                }
+              },
+              "status": "CONFLICT",
+              "code": 409,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"ALREADY_EXISTS_NOTE\",\n    \"message\": \"Note already exists.\"\n}"
+            },
+            {
+              "name": "Bad Request.",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{API_URL}}/notes/",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    ""
+                  ]
+                }
+              },
+              "status": "BAD REQUEST",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"ERROR_PYDANTIC\",\n    \"message\": \"Pydantic error.\",\n    \"payload\": {\n        \"details\": [...]\n    }\n}"
+            },
+            {
+              "name": "Created.",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": \"my note\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{API_URL}}/notes/",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    ""
+                  ]
+                }
+              },
+              "status": "CREATED",
+              "code": 201,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Server",
+                  "value": "Werkzeug/3.1.8 Python/3.11.15"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sat, 02 May 2026 22:57:05 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "120"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"SUCCESS_ADD_NOTE\",\n    \"data\": \"69f6814168f7672c1653dd86\",\n    \"message\": \"The note was successfully added.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "[GET] - Get Notes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{API_URL}}/notes/",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "notes",
+                ""
               ]
             }
           },
@@ -95,27 +301,27 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{API_URL}}/templates/test_error",
+                  "raw": "{{API_URL}}/notes/",
                   "host": [
                     "{{API_URL}}"
                   ],
                   "path": [
-                    "templates",
-                    "test_error"
+                    "notes",
+                    ""
                   ]
                 }
               },
-              "status": "INTERNAL SERVER ERROR",
-              "code": 500,
+              "status": "OK",
+              "code": 200,
               "_postman_previewlanguage": null,
               "header": [
                 {
                   "key": "Server",
-                  "value": "Werkzeug/3.1.3 Python/3.11.14"
+                  "value": "Werkzeug/3.1.8 Python/3.11.15"
                 },
                 {
                   "key": "Date",
-                  "value": "Fri, 30 Jan 2026 15:30:38 GMT"
+                  "value": "Sat, 02 May 2026 22:54:57 GMT"
                 },
                 {
                   "key": "Content-Type",
@@ -123,7 +329,7 @@
                 },
                 {
                   "key": "Content-Length",
-                  "value": "93"
+                  "value": "246"
                 },
                 {
                   "key": "Connection",
@@ -131,7 +337,128 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"code\": \"CODE_TEMPLATE_ERROR_TEST_MESSAGE\",\n    \"message\": \"TemplateError test message.\"\n}"
+              "body": "{\n    \"code\": \"SUCCESS_GET_NOTES\",\n    \"data\": [\n        {\n            \"_id\": \"69f67f73d1312f5f76844f50\",\n            \"name\": \"hi\"\n        },\n        {\n            \"_id\": \"69f67f73d1312f5f76844f51\",\n            \"name\": \"im Die\"\n        }\n    ],\n    \"message\": \"Notes retrieved successfully.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "[DELETE] - Delete Note",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{API_URL}}/notes/69f67f931e05fed59fff3035",
+              "host": [
+                "{{API_URL}}"
+              ],
+              "path": [
+                "notes",
+                "69f67f931e05fed59fff3035"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Ok.",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{API_URL}}/notes/:id",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "68356e2f4b1a2c3d4e5f6a7b"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"SUCCESS_DELETE_NOTE\",\n    \"message\": \"The note was successfully deleted.\"\n}"
+            },
+            {
+              "name": "Not Found.",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{API_URL}}/notes/:id",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "000000000000000000000000"
+                    }
+                  ]
+                }
+              },
+              "status": "NOT FOUND",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"NOT_FOUND_NOTE\",\n    \"message\": \"No note found.\"\n}"
+            },
+            {
+              "name": "Bad Request.",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{API_URL}}/notes/:id",
+                  "host": [
+                    "{{API_URL}}"
+                  ],
+                  "path": [
+                    "notes",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "not_a_valid_id"
+                    }
+                  ]
+                }
+              },
+              "status": "BAD REQUEST",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"code\": \"NOT_VALID_OBJECT_ID\",\n    \"message\": \"The value entered is not a valid ObjectId.\"\n}"
             }
           ]
         }

@@ -73,7 +73,7 @@ The production server is configured in `src/configs/gunicorn_config.py`:
 
 **What it is:** A starting point — not a framework — for developers who want to spin up a Flask + MongoDB API without rebuilding the same infrastructure from scratch each time. Every layer, pattern, and tooling choice is already wired together and working.
 
-**The problem it solves:** Starting a Flask API from zero means making the same decisions repeatedly: how to structure layers, how to handle errors globally, how to validate input, how to configure environments, how to connect to MongoDB cleanly, how to set up Docker, linting, tests, and security audits. This template makes all those decisions once, so you can focus on building the actual product.
+**The problem it solves:** Starting a Flask API from zero means making the same decisions repeatedly: how to structure layers, how to handle errors globally, how to validate input, how to configure environments, how to connect to MongoDB cleanly, how to set up Docker, linting, tests, and security audits. This boilerplate makes all those decisions once, so you can focus on building the actual product.
 
 **What it includes:**
 - **Layered architecture** enforced by convention: Blueprint → Controller → Service → DAO → MongoDB. Each layer has a single responsibility and only talks to the one directly below it.
@@ -88,7 +88,7 @@ The production server is configured in `src/configs/gunicorn_config.py`:
 - **pytest** configured with real database connections (no mocks), organized to mirror the `src/` structure — tests run against an actual MongoDB instance in Docker.
 - **Startup initialization** layer (`src/startup/`) for seeding default data when the app boots.
 
-**How to use it:** Clone the repository, bring up the Docker environment, and replace the `template` resource (blueprint, controller, service, DAO, model, constants) with your own domain logic. The architecture, tooling, error handling, and test setup are already in place — you only write what's unique to your application.
+**How to use it:** Clone the repository, bring up the Docker environment, and replace the `note` resource (blueprint, controller, service, DAO, model, constants) with your own domain logic. The architecture, tooling, error handling, and test setup are already in place — you only write what's unique to your application.
 
 ## Technologies used
 
@@ -187,7 +187,7 @@ python-flask-mongo-api-boilerplate/
 │   ├── blueprints/
 │   │   ├── routes.py
 │   │   └── v1/
-│   │       └── template_bp.py
+│   │       └── note_bp.py
 │   ├── configs/
 │   │   ├── __init__.py
 │   │   ├── default_config.py
@@ -198,19 +198,19 @@ python-flask-mongo-api-boilerplate/
 │   │   ├── logger_config.py
 │   │   └── mongo_config.py
 │   ├── controllers/
-│   │   └── template_controller.py
+│   │   └── note_controller.py
 │   ├── services/
-│   │   └── template_service.py
+│   │   └── note_service.py
 │   ├── data_access/
-│   │   └── template_dao.py
+│   │   └── note_dao.py
 │   ├── models/
-│   │   └── template_model.py
+│   │   └── note_model.py
 │   ├── constants/
 │   │   ├── codes.py
 │   │   ├── messages.py
 │   │   └── defaults.py
 │   ├── startup/
-│   │   └── init_templates.py
+│   │   └── init_notes.py
 │   └── utils/
 │       ├── exceptions.py
 │       ├── exceptions_handler.py
@@ -311,13 +311,13 @@ HTTP Request
 Blueprint (routes.py)          →  Defines endpoint URL
     │
     ▼
-Controller (template_controller.py)  →  Handles request/response
+Controller (note_controller.py)  →  Handles request/response
     │
     ▼
-Service (template_service.py)  →  Applies business rules
+Service (note_service.py)  →  Applies business rules
     │
     ▼
-DAO (template_dao.py)          →  Executes database query
+DAO (note_dao.py)          →  Executes database query
     │
     ▼
 MongoDB                        →  Stores/retrieves data
@@ -340,7 +340,7 @@ def create_app(config_name="development") -> Flask:
 
     init_mongo(app)
     register_routes(app)
-    add_default_templates()
+    add_default_notes()
 
     return app
 
@@ -355,31 +355,31 @@ app = create_app("production")   # Production environment
 
 **Purpose**: Abstracts data access logic, providing a clean API for data operations. The business layer doesn't know how data is stored.
 
-**Location**: `src/data_access/template_dao.py`
+**Location**: `src/data_access/note_dao.py`
 
 ```python
-class TemplateDAO:
+class NoteDAO:
     @staticmethod
-    def insert_one(template: dict[str, Any]) -> InsertOneResult:
-        return mongo.db.templates.insert_one(template)
+    def insert_one(note: dict[str, Any]) -> InsertOneResult:
+        return mongo.db.notes.insert_one(note)
 
     @staticmethod
     def find() -> list[dict[str, Any]]:
-        return TemplateDAO.parse_templates(list(mongo.db.templates.find()))
+        return NoteDAO.parse_notes(list(mongo.db.notes.find()))
 
     @staticmethod
     def find_one_by_id(_id: ObjectId) -> dict[str, Any] | None:
-        return TemplateDAO.parse_template(mongo.db.templates.find_one({"_id": ObjectId(_id)}))
+        return NoteDAO.parse_note(mongo.db.notes.find_one({"_id": ObjectId(_id)}))
 
     @staticmethod
     def find_one_by_name(name: str) -> dict[str, Any] | None:
-        return TemplateDAO.parse_template(
-            mongo.db.templates.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
+        return NoteDAO.parse_note(
+            mongo.db.notes.find_one({"name": {"$regex": f"^{name}$", "$options": "i"}})
         )
 
     @staticmethod
     def delete_one_by_id(_id: ObjectId) -> DeleteResult:
-        return mongo.db.templates.delete_one({"_id": ObjectId(_id)})
+        return mongo.db.notes.delete_one({"_id": ObjectId(_id)})
 ```
 
 **Benefit**: If you switch from MongoDB to PostgreSQL, only the DAO layer needs to change.
@@ -388,35 +388,35 @@ class TemplateDAO:
 
 **Purpose**: Encapsulates business logic in a dedicated layer. Controllers stay thin, and business rules are centralized.
 
-**Location**: `src/services/template_service.py`
+**Location**: `src/services/note_service.py`
 
 ```python
-class TemplateService:
+class NoteService:
     @staticmethod
-    def add_template(template: TemplateModel) -> InsertOneResult:
+    def add_note(note: NoteModel) -> InsertOneResult:
         # Business rule: Check for duplicates
-        existing = TemplateDAO.find_one_by_name(template.name)
+        existing = NoteDAO.find_one_by_name(note.name)
         if existing:
             raise ConflictAPIError(
-                code=CODE_ERROR_TEMPLATE_ALREADY_EXISTS,
-                message=MESSAGE_ERROR_TEMPLATE_ALREADY_EXISTS,
+                code=CODE_ALREADY_EXISTS_NOTE,
+                message=MESSAGE_ALREADY_EXISTS_NOTE,
             )
-        return TemplateDAO.insert_one(template.model_dump())
+        return NoteDAO.insert_one(note.model_dump())
 
     @staticmethod
-    def get_all_templates() -> list[dict[str, Any]]:
-        return TemplateDAO.find()
+    def get_all_notes() -> list[dict[str, Any]]:
+        return NoteDAO.find()
 
     @staticmethod
-    def delete_template_by_id(_id: ObjectId) -> DeleteResult:
+    def delete_note_by_id(_id: ObjectId) -> DeleteResult:
         # Business rule: Verify existence before deletion
-        existing = TemplateDAO.find_one_by_id(_id)
+        existing = NoteDAO.find_one_by_id(_id)
         if not existing:
             raise NotFoundAPIError(
-                code=CODE_NOT_FOUND_TEMPLATE,
-                message=MESSAGE_NOT_FOUND_TEMPLATE
+                code=CODE_NOT_FOUND_NOTE,
+                message=MESSAGE_NOT_FOUND_NOTE
             )
-        return TemplateDAO.delete_one_by_id(_id)
+        return NoteDAO.delete_one_by_id(_id)
 ```
 
 **Benefit**: Business rules are in one place, not scattered across controllers.
@@ -463,12 +463,12 @@ def alive() -> Response:
 
 
 @handle_exceptions
-def create_template() -> Response:
+def create_note() -> Response:
     # If ValidationError or PyMongoError occurs,
     # it's automatically caught and converted to an API error
     data = request.get_json()
-    template = TemplateModel(**data)
-    TemplateService.add_template(template)
+    note = NoteModel(**data)
+    NoteService.add_note(note)
     return jsonify({"message": "Created"}), 201
 ```
 
@@ -508,7 +508,7 @@ def init_mongo(app: Flask) -> None:
 from src.configs.mongo_config import mongo
 
 # Always the same instance
-mongo.db.templates.find()
+mongo.db.notes.find()
 ```
 
 **Benefit**: One database connection shared across all modules, avoiding connection overhead.
