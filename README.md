@@ -67,7 +67,7 @@ pytest-xdist==3.5.0
 
 ## Getting Started
 
-These steps bring up a fully working development environment with Flask + MongoDB running inside Docker. For production deployment instructions, jump to [Production](#production).
+With the dependencies catalogued above, the next step is bringing the stack up locally. These steps wire up a fully working development environment with Flask + MongoDB running inside Docker. For production deployment instructions, jump to [Production](#production).
 
 1. Clone the repository
 2. Copy `.env.example` to `.env` and adjust values if needed (see [Env Keys](#env-keys) for what each variable means)
@@ -76,9 +76,9 @@ These steps bring up a fully working development environment with Flask + MongoD
 
 NOTE: You have to be standing in the folder containing the: `dev.docker-compose.yml` and you need to install `Docker Desktop` if you are in Windows.
 
-### Create a Virtual Env for Pre-Commit and Tests (And other things)
+### Create a Virtual Env for Local Tooling
 
-The Docker environment runs the app, but to use the local tooling (pre-commit hooks, tests, security audit) you need a Python virtual environment on the host:
+The Docker environment runs the app, but to use the local tooling (pre-commit hooks, tests, security audit) you need a Python virtual environment on the host. This venv is the one referenced later by [Testing](#testing) and [Security Audit](#security-audit), so create it once here:
 
 1. Join to the correct path of the clone
 2. Execute: `python -m venv venv`
@@ -98,7 +98,7 @@ NOTE: Install **pre-commit** inside repository folder.
 
 ## Env Keys
 
-The application reads its configuration from a `.env` file at the project root. Use `.env.example` as a template.
+Step 2 of [Getting Started](#getting-started) had you copy `.env.example` to `.env`. This section documents what every variable in that file controls so you can adjust them confidently per environment.
 
 1. `TZ`: Refers to the timezone setting for the container.
 2. `MONGO_HOST`: Specifies the hostname or address where the MongoDB server is located. In this case, `host.docker.internal` allows a Docker container to connect to the host machine.
@@ -112,7 +112,7 @@ The application reads its configuration from a `.env` file at the project root. 
 10. `ME_BASICAUTH_USERNAME`: Username for the Mongo Express web UI basic authentication.
 11. `ME_BASICAUTH_PASSWORD`: Password for the Mongo Express web UI basic authentication.
 
-```ts
+```bash
 TZ=America/Argentina/Buenos_Aires
 
 MONGO_HOST=boilerplate-db
@@ -512,23 +512,19 @@ class ProductionConfig(DefaultConfig):
 
 ## Testing
 
-Once the architecture is clear, the test suite mirrors the same `src/` layout and runs against a real MongoDB instance (no mocks). Run it from the host inside your virtual environment:
+Once the architecture is clear, the test suite mirrors the same `src/` layout and runs against a real MongoDB instance (no mocks). It reuses the virtual environment created in [Getting Started](#create-a-virtual-env-for-local-tooling) — no extra setup is needed:
 
-1. Join to the correct path of the clone
-2. Execute: `python -m venv venv`
-3. Execute in Windows: `venv\Scripts\activate`
-4. Execute: `pip install -r requirements.txt`
-5. Execute: `pip install -r requirements.test.txt`
-6. Execute: `pytest --log-cli-level=INFO`
+1. Activate the virtual environment (Windows: `venv\Scripts\activate`, Linux/Mac: `source venv/bin/activate`)
+2. Execute: `pytest --log-cli-level=INFO`
+
+NOTE: `pytest` boots the MongoDB container defined in `test.docker-compose.yml` automatically — make sure Docker Desktop is running.
 
 ## Security Audit
 
-Before shipping any build, scan production dependencies for known vulnerabilities using **pip-audit**:
+Before shipping any build, scan production dependencies for known vulnerabilities using **pip-audit**. This also runs from the virtual environment created in [Getting Started](#create-a-virtual-env-for-local-tooling) — `pip-audit` is already installed via `requirements.dev.txt`:
 
-1. Go to the repository folder
-2. Activate your virtual environment
-3. Execute: `pip install -r requirements.dev.txt`
-4. Execute: `pip-audit -r requirements.txt`
+1. Activate the virtual environment (Windows: `venv\Scripts\activate`, Linux/Mac: `source venv/bin/activate`)
+2. Execute: `pip-audit -r requirements.txt`
 
 ## Build
 
