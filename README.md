@@ -6,67 +6,6 @@ This project was created primarily for **educational and learning purposes**.
 While it is well-structured and could technically be used in production, it is **not intended for commercialization**.  
 The main goal is to explore and demonstrate best practices, patterns, and technologies in software development.
 
-## Getting Started for Development
-
-1. Clone the repository
-2. Go to the repository folder and execute: `docker-compose -f dev.docker-compose.yml build --no-cache` in the terminal
-3. Once built, you must execute the command: `docker-compose -f dev.docker-compose.yml up --force-recreate` in the terminal
-
-NOTE: You have to be standing in the folder containing the: `dev.docker-compose.yml` and you need to install `Docker Desktop` if you are in Windows.
-
-### Pre-Commit for Development
-
-NOTE: Install **pre-commit** inside repository folder.
-
-1. Once you're inside the virtual environment, let's install the hooks specified in the pre-commit. Execute: `pre-commit install`
-2. Now every time you try to commit, the pre-commit lint will run. If you want to do it manually, you can run the command: `pre-commit run --all-files`
-
-### Create a Virtual Env for Pre-Commit and Tests (And other things)
-
-1. Join to the correct path of the clone
-2. Execute: `python -m venv venv`
-3. Execute in Windows: `venv\Scripts\activate`
-4. Execute in Linux/Mac: `source venv/bin/activate`
-5. Execute: `pip install -r requirements.txt`
-6. Execute: `pip install -r requirements.dev.txt`
-7. Execute: `pip install -r requirements.test.txt`
-8. Execute all the commands you want
-
-## Getting Started for Production
-
-1. Clone the repository
-2. Set your production environment variables in `.env` (see **Env Keys** section)
-3. Go to the repository folder and execute: `docker-compose -f prod.docker-compose.yml build --no-cache` in the terminal
-4. Once built, execute: `docker-compose -f prod.docker-compose.yml up -d` in the terminal
-
-NOTE: The API server will only start after MongoDB passes its health check. The `restart: always` policy ensures both containers come back up automatically after a crash or reboot.
-
-### What's different from development
-
-| | Development | Production |
-|---|---|---|
-| Server | Flask dev server | Gunicorn (`wsgi.py`) |
-| Debug mode | `True` | `False` |
-| Docker image | Full build | Multi-stage slim image |
-| Container user | root | `appuser` (non-root) |
-| MongoDB data | Ephemeral | Persistent volume (`db-data`) |
-| MongoDB port | Exposed to host | Internal network only |
-
-### Gunicorn
-
-The production server is configured in `src/configs/gunicorn_config.py`:
-
-- **Workers**: `cpu_count * 2 + 1` (auto-scaled to the host machine)
-- **Threads**: `2` per worker
-- **Timeout**: `120s` (request), `30s` (graceful shutdown)
-- **Logs**: stdout/stderr (compatible with Docker log drivers)
-
-### Security considerations before deploying
-
-- Run `pip-audit -r requirements.txt` to check for known vulnerabilities in production dependencies
-- Replace the default MongoDB credentials in `.env` with strong, unique values
-- The production Dockerfile runs the app as a non-root user (`appuser`) — do not override this
-
 ## Description
 
 **Python Flask Mongo Api Boilerplate** is a production-ready boilerplate for building REST APIs with **Flask** and **MongoDB**, designed to eliminate the repetitive setup and architectural decisions that come with every new backend project.
@@ -81,7 +20,7 @@ The production server is configured in `src/configs/gunicorn_config.py`:
 - **Custom exception hierarchy** (`ValidationAPIError`, `NotFoundAPIError`, `ConflictAPIError`, `InternalAPIError`) that produces consistent error responses across the entire API.
 - **MongoDB Singleton** via `mongo_config.py` — a single shared connection instance across all modules, initialized through Flask's app context.
 - **Environment-based configuration** using a `DefaultConfig` base class extended by `DevelopmentConfig`, `TestingConfig`, and `ProductionConfig`, loaded dynamically by the app factory.
-- **Docker** setup for development and production, with a separate `docker-compose.test.yml` that spins up a real MongoDB container for integration tests.
+- **Docker** setup for development and production, with a separate `test.docker-compose.yml` that spins up a real MongoDB container for integration tests.
 - **Gunicorn** as the production WSGI server, configured via `gunicorn_config.py`.
 - **Ruff** for fast linting and formatting, enforced automatically via **pre-commit** hooks on every commit.
 - **pip-audit** integration for scanning production dependencies against known vulnerability databases.
@@ -126,29 +65,40 @@ pytest-timeout==2.3.1
 pytest-xdist==3.5.0
 ```
 
-## Portfolio Link
+## Getting Started
 
-[`https://www.diegolibonati.com.ar/#/project/python-flask-mongo-api-boilerplate`](https://www.diegolibonati.com.ar/#/project/python-flask-mongo-api-boilerplate)
+These steps bring up a fully working development environment with Flask + MongoDB running inside Docker. For production deployment instructions, jump to [Production](#production).
 
-## Testing
+1. Clone the repository
+2. Copy `.env.example` to `.env` and adjust values if needed (see [Env Keys](#env-keys) for what each variable means)
+3. Go to the repository folder and execute: `docker-compose -f dev.docker-compose.yml build --no-cache` in the terminal
+4. Once built, you must execute the command: `docker-compose -f dev.docker-compose.yml up --force-recreate` in the terminal
+
+NOTE: You have to be standing in the folder containing the: `dev.docker-compose.yml` and you need to install `Docker Desktop` if you are in Windows.
+
+### Create a Virtual Env for Pre-Commit and Tests (And other things)
+
+The Docker environment runs the app, but to use the local tooling (pre-commit hooks, tests, security audit) you need a Python virtual environment on the host:
 
 1. Join to the correct path of the clone
 2. Execute: `python -m venv venv`
 3. Execute in Windows: `venv\Scripts\activate`
-4. Execute: `pip install -r requirements.txt`
-5. Execute: `pip install -r requirements.test.txt`
-6. Execute: `pytest --log-cli-level=INFO`
+4. Execute in Linux/Mac: `source venv/bin/activate`
+5. Execute: `pip install -r requirements.txt`
+6. Execute: `pip install -r requirements.dev.txt`
+7. Execute: `pip install -r requirements.test.txt`
+8. Execute all the commands you want
 
-## Security Audit
+### Pre-Commit for Development
 
-You can check your dependencies for known vulnerabilities using **pip-audit**.
+NOTE: Install **pre-commit** inside repository folder.
 
-1. Go to the repository folder
-2. Activate your virtual environment
-3. Execute: `pip install -r requirements.dev.txt`
-4. Execute: `pip-audit -r requirements.txt`
+1. Once you're inside the virtual environment, let's install the hooks specified in the pre-commit. Execute: `pre-commit install`
+2. Now every time you try to commit, the pre-commit lint will run. If you want to do it manually, you can run the command: `pre-commit run --all-files`
 
 ## Env Keys
+
+The application reads its configuration from a `.env` file at the project root. Use `.env.example` as a template.
 
 1. `TZ`: Refers to the timezone setting for the container.
 2. `MONGO_HOST`: Specifies the hostname or address where the MongoDB server is located. In this case, `host.docker.internal` allows a Docker container to connect to the host machine.
@@ -180,6 +130,8 @@ ME_BASICAUTH_PASSWORD=admin123
 ```
 
 ## Project Structure
+
+With the environment running and configured, the following layout is what you'll be working in:
 
 ```
 python-flask-mongo-api-boilerplate/
@@ -228,7 +180,9 @@ python-flask-mongo-api-boilerplate/
 ├── wsgi.py
 ├── Dockerfile.development
 ├── Dockerfile.production
-├── docker-compose.test.yml
+├── dev.docker-compose.yml
+├── prod.docker-compose.yml
+├── test.docker-compose.yml
 ├── requirements.txt
 ├── requirements.test.txt
 ├── requirements.dev.txt
@@ -255,13 +209,15 @@ python-flask-mongo-api-boilerplate/
 13. `app.py` -> The **application factory**. Creates and configures the Flask app instance using the Factory pattern.
 14. `wsgi.py` -> The **production entry point** for WSGI servers like Gunicorn.
 15. `Dockerfile.*` -> Docker configurations for **development and production** environments.
-16. `docker-compose.test.yml` -> Defines the **test environment** with MongoDB container for integration testing.
+16. `test.docker-compose.yml` -> Defines the **test environment** with MongoDB container for integration testing.
 17. `requirements.txt` -> Lists **production dependencies**.
 18. `requirements.test.txt` -> Lists **testing dependencies** (pytest, pytest-env, etc.).
-19. `requirements.test.txt` -> Lists **development dependencies** (pre-commit, pip-audit, etc.).
+19. `requirements.dev.txt` -> Lists **development dependencies** (pre-commit, pip-audit, etc.).
 20. `pyproject.toml` -> **Unified project configuration** for pytest, ruff, and project metadata.
 
 ## Architecture & Design Patterns
+
+The folder structure above is a direct reflection of the architectural decisions described in this section.
 
 ### Layered Architecture
 
@@ -554,6 +510,78 @@ class ProductionConfig(DefaultConfig):
 
 **Benefit**: Common configuration in one place; environments only override what's different.
 
+## Testing
+
+Once the architecture is clear, the test suite mirrors the same `src/` layout and runs against a real MongoDB instance (no mocks). Run it from the host inside your virtual environment:
+
+1. Join to the correct path of the clone
+2. Execute: `python -m venv venv`
+3. Execute in Windows: `venv\Scripts\activate`
+4. Execute: `pip install -r requirements.txt`
+5. Execute: `pip install -r requirements.test.txt`
+6. Execute: `pytest --log-cli-level=INFO`
+
+## Security Audit
+
+Before shipping any build, scan production dependencies for known vulnerabilities using **pip-audit**:
+
+1. Go to the repository folder
+2. Activate your virtual environment
+3. Execute: `pip install -r requirements.dev.txt`
+4. Execute: `pip-audit -r requirements.txt`
+
+## Build
+
+With tests passing and no flagged vulnerabilities, build the production Docker image. The production build uses a multi-stage slim image and runs the app as a non-root `appuser`:
+
+1. Go to the repository folder
+2. Execute: `docker-compose -f prod.docker-compose.yml build --no-cache`
+
+The resulting image bakes in Gunicorn as the WSGI server, configured in `src/configs/gunicorn_config.py`:
+
+- **Workers**: `cpu_count * 2 + 1` (auto-scaled to the host machine)
+- **Threads**: `2` per worker
+- **Timeout**: `120s` (request), `30s` (graceful shutdown)
+- **Logs**: stdout/stderr (compatible with Docker log drivers)
+
+## Production
+
+Production deployment is the result of completing the previous sections — it does not introduce a new flow, only the steps that are specific to running the built image on a real host.
+
+**Pre-flight checklist** (do these in order before deploying):
+
+1. Run the suite — see [Testing](#testing)
+2. Audit production dependencies — see [Security Audit](#security-audit)
+3. Build the production image — see [Build](#build)
+
+**Production-specific steps:**
+
+1. On the production host, set strong, unique values for every variable listed in [Env Keys](#env-keys) inside `.env` — **do not** reuse the development credentials
+2. Start the stack: `docker-compose -f prod.docker-compose.yml up -d`
+
+NOTE: The API server will only start after MongoDB passes its health check. The `restart: always` policy ensures both containers come back up automatically after a crash or reboot.
+
+### What's different from development
+
+| | Development | Production |
+|---|---|---|
+| Server | Flask dev server | Gunicorn (`wsgi.py`) |
+| Debug mode | `True` | `False` |
+| Docker image | Full build | Multi-stage slim image |
+| Container user | root | `appuser` (non-root) |
+| MongoDB data | Ephemeral | Persistent volume (`db-data`) |
+| MongoDB port | Exposed to host | Internal network only |
+
+### Production hardening notes
+
+- The production Dockerfile runs the app as a non-root user (`appuser`) — do not override this
+- MongoDB is not exposed to the host network in production; access it through the application or an authenticated tunnel
+- Re-run [Security Audit](#security-audit) on every dependency bump before rebuilding the image
+
 ## Known Issues
 
 None at the moment.
+
+## Portfolio Link
+
+[`https://www.diegolibonati.com.ar/#/project/python-flask-mongo-api-boilerplate`](https://www.diegolibonati.com.ar/#/project/python-flask-mongo-api-boilerplate)
