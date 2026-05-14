@@ -29,18 +29,22 @@ class TestAddNote:
     def test_raises_conflict_when_name_already_exists(self) -> None:
         model: NoteModel = NoteModel(name="existing")
         existing: dict[str, Any] = {"_id": str(ObjectId()), "name": "existing"}
-        with patch("src.services.note_service.NoteDAO.find_one_by_name", return_value=existing):
-            with pytest.raises(ConflictAPIError) as exc_info:
-                NoteService.add_note(model)
+        with (
+            patch("src.services.note_service.NoteDAO.find_one_by_name", return_value=existing),
+            pytest.raises(ConflictAPIError) as exc_info,
+        ):
+            NoteService.add_note(model)
         assert exc_info.value.code == CODE_ALREADY_EXISTS_NOTE
 
     @pytest.mark.unit
     def test_conflict_error_has_409_status(self) -> None:
         model: NoteModel = NoteModel(name="existing")
         existing: dict[str, Any] = {"_id": str(ObjectId()), "name": "existing"}
-        with patch("src.services.note_service.NoteDAO.find_one_by_name", return_value=existing):
-            with pytest.raises(ConflictAPIError) as exc_info:
-                NoteService.add_note(model)
+        with (
+            patch("src.services.note_service.NoteDAO.find_one_by_name", return_value=existing),
+            pytest.raises(ConflictAPIError) as exc_info,
+        ):
+            NoteService.add_note(model)
         assert exc_info.value.status_code == 409
 
     @pytest.mark.unit
@@ -50,9 +54,9 @@ class TestAddNote:
         with (
             patch("src.services.note_service.NoteDAO.find_one_by_name", return_value=existing),
             patch("src.services.note_service.NoteDAO.insert_one") as mock_insert,
+            pytest.raises(ConflictAPIError),
         ):
-            with pytest.raises(ConflictAPIError):
-                NoteService.add_note(model)
+            NoteService.add_note(model)
         mock_insert.assert_not_called()
 
 
@@ -99,17 +103,21 @@ class TestDeleteNoteById:
     @pytest.mark.unit
     def test_raises_not_found_when_note_does_not_exist(self) -> None:
         _id: ObjectId = ObjectId()
-        with patch("src.services.note_service.NoteDAO.find_one_by_id", return_value=None):
-            with pytest.raises(NotFoundAPIError) as exc_info:
-                NoteService.delete_note_by_id(_id)
+        with (
+            patch("src.services.note_service.NoteDAO.find_one_by_id", return_value=None),
+            pytest.raises(NotFoundAPIError) as exc_info,
+        ):
+            NoteService.delete_note_by_id(_id)
         assert exc_info.value.code == CODE_NOT_FOUND_NOTE
 
     @pytest.mark.unit
     def test_not_found_error_has_404_status(self) -> None:
         _id: ObjectId = ObjectId()
-        with patch("src.services.note_service.NoteDAO.find_one_by_id", return_value=None):
-            with pytest.raises(NotFoundAPIError) as exc_info:
-                NoteService.delete_note_by_id(_id)
+        with (
+            patch("src.services.note_service.NoteDAO.find_one_by_id", return_value=None),
+            pytest.raises(NotFoundAPIError) as exc_info,
+        ):
+            NoteService.delete_note_by_id(_id)
         assert exc_info.value.status_code == 404
 
     @pytest.mark.unit
@@ -118,7 +126,7 @@ class TestDeleteNoteById:
         with (
             patch("src.services.note_service.NoteDAO.find_one_by_id", return_value=None),
             patch("src.services.note_service.NoteDAO.delete_one_by_id") as mock_delete,
+            pytest.raises(NotFoundAPIError),
         ):
-            with pytest.raises(NotFoundAPIError):
-                NoteService.delete_note_by_id(_id)
+            NoteService.delete_note_by_id(_id)
         mock_delete.assert_not_called()

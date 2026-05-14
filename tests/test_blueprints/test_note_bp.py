@@ -186,7 +186,7 @@ class TestDeleteNoteRoute:
 
     @pytest.mark.integration
     def test_returns_404_when_note_not_found(self, client: FlaskClient) -> None:
-        response = client.delete(f"/api/v1/notes/{str(ObjectId())}")
+        response = client.delete(f"/api/v1/notes/{ObjectId()!s}")
         assert response.status_code == 404
 
     @pytest.mark.integration

@@ -71,7 +71,7 @@ select = ["E", "F", "W", "I", "N", "UP", "B", "S", "SIM", "C4", "RET", "RUF"]
 ignore = ["E203"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101"]
+"tests/**/*.py" = ["S101", "S603", "S607"]
 "src/configs/*.py" = ["S104"]
 
 [tool.ruff.format]
