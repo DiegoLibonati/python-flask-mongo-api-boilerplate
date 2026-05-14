@@ -1,4 +1,6 @@
 # ##### SUCCESS #####
+MESSAGE_SUCCESS_HEALTH = "The application is healthy."
+MESSAGE_SUCCESS_READY = "The application is ready to serve requests."
 MESSAGE_SUCCESS_ADD_NOTE = "The note was successfully added."
 MESSAGE_SUCCESS_GET_NOTES = "Notes retrieved successfully."
 MESSAGE_SUCCESS_DELETE_NOTE = "The note was successfully deleted."
@@ -22,4 +24,5 @@ MESSAGE_NOT_VALID_OBJECT_ID = "The value entered is not a valid ObjectId."
 MESSAGE_ALREADY_EXISTS_NOTE = "Note already exists."
 
 # ##### NOT_FOUND #####
+MESSAGE_NOT_FOUND_ROUTE = "The requested route does not exist."
 MESSAGE_NOT_FOUND_NOTE = "No note found."

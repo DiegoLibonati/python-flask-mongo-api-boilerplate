@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements.txt pyproject.toml ./
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir --prefix=/install -r requirements.txt
@@ -31,5 +31,9 @@ COPY --chown=appuser:appuser . .
 USER appuser
 
 EXPOSE 5050
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request, sys; \
+sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:5050/api/v1/health', timeout=3).status == 200 else sys.exit(1)" || exit 1
 
 CMD ["gunicorn", "-c", "src/configs/gunicorn_config.py", "wsgi:app"]

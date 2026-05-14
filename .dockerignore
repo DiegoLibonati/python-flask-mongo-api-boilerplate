@@ -40,5 +40,4 @@ Dockerfile*
 
 # Docs & CI
 *.md
-LICENSE
 .claude/

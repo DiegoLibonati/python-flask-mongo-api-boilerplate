@@ -1,6 +1,7 @@
 import multiprocessing
+import os
 
-bind = "0.0.0.0:5050"
+bind = f"{os.getenv('HOST', '0.0.0.0')}:{os.getenv('PORT', '5050')}"
 
 workers = multiprocessing.cpu_count() * 2 + 1
 

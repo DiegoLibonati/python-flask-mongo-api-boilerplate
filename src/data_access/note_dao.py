@@ -29,10 +29,10 @@ class NoteDAO:
 
     @staticmethod
     def parse_notes(notes: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return [NoteDAO.parse_note(note) for note in notes]
+        return [parsed for note in notes if (parsed := NoteDAO.parse_note(note)) is not None]
 
     @staticmethod
-    def parse_note(note: dict[str, Any]) -> dict[str, Any]:
+    def parse_note(note: dict[str, Any] | None) -> dict[str, Any] | None:
         if not note:
             return None
 

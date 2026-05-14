@@ -16,7 +16,7 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 
 **What it includes:**
 - **Layered architecture** enforced by convention: Blueprint → Controller → Service → DAO → MongoDB. Each layer has a single responsibility and only talks to the one directly below it.
-- **Pydantic v2** for request validation and data serialization, with a custom `exceptions_handler` decorator that automatically converts `ValidationError` and `PyMongoError` into structured JSON API responses — no try/catch boilerplate in controllers.
+- **Pydantic v2** for request validation and data serialization, with a custom `exceptions_decorator` decorator that automatically converts `ValidationError` and `PyMongoError` into structured JSON API responses — no try/catch boilerplate in controllers.
 - **Custom exception hierarchy** (`ValidationAPIError`, `NotFoundAPIError`, `ConflictAPIError`, `InternalAPIError`) that produces consistent error responses across the entire API.
 - **MongoDB Singleton** via `mongo_config.py` — a single shared connection instance across all modules, initialized through Flask's app context.
 - **Environment-based configuration** using a `DefaultConfig` base class extended by `DevelopmentConfig`, `TestingConfig`, and `ProductionConfig`, loaded dynamically by the app factory.
@@ -25,20 +25,23 @@ The main goal is to explore and demonstrate best practices, patterns, and techno
 - **Ruff** for fast linting and formatting, enforced automatically via **pre-commit** hooks on every commit.
 - **pip-audit** integration for scanning production dependencies against known vulnerability databases.
 - **pytest** configured with real database connections (no mocks), organized to mirror the `src/` structure — tests run against an actual MongoDB instance in Docker.
-- **Startup initialization** layer (`src/startup/`) for seeding default data when the app boots.
+- **GitHub Actions CI/CD** pipeline (`.github/workflows/ci.yml`) that runs linting, type checking with mypy, security audit, tests, and Docker builds on every push and pull request to `main`.
+- **Health endpoint** (`GET /api/v1/health`) for liveness checks, with a matching `HEALTHCHECK` directive in the production Dockerfile.
+- **Global error handlers** for 404 (unknown routes) and 500 (unhandled exceptions) that return the same structured JSON format as the rest of the API.
+- **Startup initialization** layer (`src/startup/`) for seeding default data when the app boots, controlled by the `SEED_DEFAULT_DATA` env var.
 
 **How to use it:** Clone the repository, bring up the Docker environment, and replace the `note` resource (blueprint, controller, service, DAO, model, constants) with your own domain logic. The architecture, tooling, error handling, and test setup are already in place — you only write what's unique to your application.
 
 ## Technologies used
 
-1. Python -> Flask
+1. Python 3.11 -> Flask
 2. Docker
 3. MongoDB -> PyMongo
 4. Gunicorn
 
 ## Libraries used
 
-#### Requirements.txt
+#### Runtime (`[project.dependencies]`)
 
 ```
 flask==3.1.3
@@ -47,18 +50,19 @@ pydantic==2.11.9
 gunicorn==23.0.0
 ```
 
-#### Requirements.dev.txt
+#### Dev (`[project.optional-dependencies]` dev)
 
 ```
 pre-commit==4.3.0
 pip-audit==2.7.3
 ruff==0.11.12
+mypy==1.13.0
 ```
 
-#### Requirements.test.txt
+#### Test (`[project.optional-dependencies]` test)
 
 ```
-pytest==8.4.2
+pytest==9.0.3
 pytest-env==1.1.5
 pytest-cov==4.1.0
 pytest-timeout==2.3.1
@@ -111,6 +115,8 @@ Step 2 of [Getting Started](#getting-started) had you copy `.env.example` to `.e
 9. `PORT`: Refers to the port on which the backend API is exposed.
 10. `ME_BASICAUTH_USERNAME`: Username for the Mongo Express web UI basic authentication.
 11. `ME_BASICAUTH_PASSWORD`: Password for the Mongo Express web UI basic authentication.
+12. `MAX_CONTENT_LENGTH`: Maximum allowed request body size in bytes (default: 1048576 = 1 MB). Prevents oversized payloads from exhausting memory.
+13. `SEED_DEFAULT_DATA`: Set to `true` to seed default data on startup. Only enabled in development by default.
 
 ```bash
 TZ=America/Argentina/Buenos_Aires
@@ -124,6 +130,9 @@ MONGO_AUTH_SOURCE=admin
 
 HOST=0.0.0.0
 PORT=5050
+SEED_DEFAULT_DATA=false
+
+MAX_CONTENT_LENGTH=1048576
 
 ME_BASICAUTH_USERNAME=admin
 ME_BASICAUTH_PASSWORD=admin123
@@ -135,10 +144,14 @@ With the environment running and configured, the following layout is what you'll
 
 ```
 python-flask-mongo-api-boilerplate/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── src/
 │   ├── blueprints/
 │   │   ├── routes.py
 │   │   └── v1/
+│   │       ├── health_bp.py
 │   │       └── note_bp.py
 │   ├── configs/
 │   │   ├── __init__.py
@@ -150,6 +163,7 @@ python-flask-mongo-api-boilerplate/
 │   │   ├── logger_config.py
 │   │   └── mongo_config.py
 │   ├── controllers/
+│   │   ├── health_controller.py
 │   │   └── note_controller.py
 │   ├── services/
 │   │   └── note_service.py
@@ -165,7 +179,7 @@ python-flask-mongo-api-boilerplate/
 │   │   └── init_notes.py
 │   └── utils/
 │       ├── exceptions.py
-│       ├── exceptions_handler.py
+│       ├── exceptions_decorator.py
 │       └── helpers.py
 ├── test/
 │   ├── conftest.py
@@ -187,8 +201,10 @@ python-flask-mongo-api-boilerplate/
 ├── requirements.test.txt
 ├── requirements.dev.txt
 ├── pyproject.toml
+├── .editorconfig
 ├── .env
 ├── .env.example
+├── .python-version
 ├── .gitignore
 ├── .pre-commit-config.yaml
 └── README.md
@@ -203,17 +219,20 @@ python-flask-mongo-api-boilerplate/
 7. `models` -> Defines **Pydantic models** for data validation and serialization.
 8. `constants` -> Holds **static values** like error codes, user messages, and default configurations.
 9. `startup` -> Contains **initialization logic** executed when the application starts, such as seeding default data.
-10. `utils` -> Contains **shared utilities** including custom exceptions, error handling decorators, and helper functions.
+10. `utils` -> Contains **shared utilities** including custom exceptions, the `exceptions_decorator` error-handling decorator, and helper functions.
 11. `test` -> Contains **integration tests** organized to mirror the `src/` structure. Uses real database connections via Docker.
 12. `conftest.py` -> Defines **pytest fixtures** for database setup, app initialization, and test data.
 13. `app.py` -> The **application factory**. Creates and configures the Flask app instance using the Factory pattern.
 14. `wsgi.py` -> The **production entry point** for WSGI servers like Gunicorn.
 15. `Dockerfile.*` -> Docker configurations for **development and production** environments.
 16. `test.docker-compose.yml` -> Defines the **test environment** with MongoDB container for integration testing.
-17. `requirements.txt` -> Lists **production dependencies**.
-18. `requirements.test.txt` -> Lists **testing dependencies** (pytest, pytest-env, etc.).
-19. `requirements.dev.txt` -> Lists **development dependencies** (pre-commit, pip-audit, etc.).
-20. `pyproject.toml` -> **Unified project configuration** for pytest, ruff, and project metadata.
+17. `requirements.txt` -> Installs the package in editable mode (`-e .`), pulling dependencies from `pyproject.toml`.
+18. `requirements.test.txt` -> Installs test extras (`-e .[test]`): pytest and related plugins.
+19. `requirements.dev.txt` -> Installs dev extras (`-e .[dev]`): pre-commit, ruff, mypy, pip-audit.
+20. `pyproject.toml` -> **Single source of truth** for project metadata, all dependency groups, and tool configuration (pytest, ruff, mypy).
+21. `.editorconfig` -> Enforces **consistent editor settings** (indentation, line endings, charset) across editors and IDEs.
+22. `.github/workflows/ci.yml` -> **GitHub Actions CI/CD pipeline** that runs lint, type check, security audit, tests, and Docker builds on every push and pull request to `main`.
+23. `.python-version` -> Pins the **Python version** (3.11) for tools that read this file (e.g., pyenv).
 
 ## Architecture & Design Patterns
 
@@ -381,10 +400,10 @@ class NoteService:
 
 **Purpose**: Adds behavior to functions without modifying them. Wraps functions to extend functionality.
 
-**Location**: `src/utils/exceptions_handler.py`
+**Location**: `src/utils/exceptions_decorator.py`
 
 ```python
-def exceptions_handler(fn: Callable[P, R]) -> Callable[P, R]:
+def exceptions_decorator(fn: Callable[P, R]) -> Callable[P, R]:
     @wraps(fn)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         try:
@@ -409,7 +428,7 @@ def exceptions_handler(fn: Callable[P, R]) -> Callable[P, R]:
 **Usage in Controller**:
 
 ```python
-@handle_exceptions
+@exceptions_decorator
 def alive() -> Response:
     response = {
         "message": "I am Alive!",
@@ -418,7 +437,7 @@ def alive() -> Response:
     return jsonify(response), 200
 
 
-@handle_exceptions
+@exceptions_decorator
 def create_note() -> Response:
     # If ValidationError or PyMongoError occurs,
     # it's automatically caught and converted to an API error

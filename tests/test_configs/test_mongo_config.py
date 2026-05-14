@@ -15,7 +15,7 @@ class TestMongoClass:
     @pytest.mark.unit
     def test_initial_db_is_none(self) -> None:
         instance: Mongo = Mongo()
-        assert instance.db is None
+        assert instance._db is None
 
     @pytest.mark.unit
     def test_init_app_sets_client(self) -> None:
@@ -54,7 +54,7 @@ class TestMongoClass:
         with patch("src.configs.mongo_config.MongoClient") as mock_client_cls:
             mock_client_cls.return_value = MagicMock()
             instance.init_app(mock_app)
-        mock_client_cls.assert_called_once_with(uri)
+        mock_client_cls.assert_called_once_with(uri, serverSelectionTimeoutMS=5000)
 
 
 class TestMongoSingleton:

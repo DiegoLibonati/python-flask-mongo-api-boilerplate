@@ -6,3 +6,20 @@ __pycache__
 .env
 *.pyc
 *.pyo
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Coverage
+.coverage
+htmlcov/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

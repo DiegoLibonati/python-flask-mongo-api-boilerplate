@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from src.utils.helpers import is_positive_integer
@@ -5,71 +7,46 @@ from src.utils.helpers import is_positive_integer
 
 class TestIsPositiveInteger:
     @pytest.mark.unit
-    def test_returns_true_for_positive_integer(self) -> None:
-        result: bool = is_positive_integer(1)
-        assert result is True
-
-    @pytest.mark.unit
-    def test_returns_true_for_large_positive_integer(self) -> None:
-        result: bool = is_positive_integer(1000000)
-        assert result is True
-
-    @pytest.mark.unit
-    def test_returns_false_for_zero(self) -> None:
-        result: bool = is_positive_integer(0)
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_negative_integer(self) -> None:
-        result: bool = is_positive_integer(-1)
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_bool_true(self) -> None:
-        result: bool = is_positive_integer(True)
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_bool_false(self) -> None:
-        result: bool = is_positive_integer(False)
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_true_for_digit_string(self) -> None:
-        result: bool = is_positive_integer("5")
-        assert result is True
-
-    @pytest.mark.unit
-    def test_returns_false_for_zero_string(self) -> None:
-        result: bool = is_positive_integer("0")
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_non_digit_string(self) -> None:
-        result: bool = is_positive_integer("abc")
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_empty_string(self) -> None:
-        result: bool = is_positive_integer("")
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_float(self) -> None:
-        result: bool = is_positive_integer(1.5)
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_none(self) -> None:
-        result: bool = is_positive_integer(None)
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_list(self) -> None:
-        result: bool = is_positive_integer([1])
-        assert result is False
-
-    @pytest.mark.unit
-    def test_returns_false_for_negative_string(self) -> None:
-        result: bool = is_positive_integer("-1")
-        assert result is False
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            (1, True),
+            (100, True),
+            ("1", True),
+            ("99", True),
+            (0, False),
+            (-1, False),
+            (-100, False),
+            (True, False),
+            (False, False),
+            (None, False),
+            (1.5, False),
+            (0.5, False),
+            ("", False),
+            ("abc", False),
+            ("0", False),
+            ("-1", False),
+            ("1.5", False),
+        ],
+        ids=[
+            "positive_int",
+            "large_positive_int",
+            "positive_digit_string",
+            "large_positive_digit_string",
+            "zero",
+            "negative_int",
+            "large_negative_int",
+            "bool_true",
+            "bool_false",
+            "none",
+            "positive_float",
+            "fractional_float",
+            "empty_string",
+            "non_numeric_string",
+            "zero_string",
+            "negative_string",
+            "float_string",
+        ],
+    )
+    def test_returns_expected(self, value: Any, expected: bool) -> None:
+        assert is_positive_integer(value) is expected
