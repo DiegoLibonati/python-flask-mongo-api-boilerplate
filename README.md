@@ -559,6 +559,57 @@ The resulting image bakes in Gunicorn as the WSGI server, configured in `src/con
 - **Timeout**: `120s` (request), `30s` (graceful shutdown)
 - **Logs**: stdout/stderr (compatible with Docker log drivers)
 
+## Continuous Integration
+
+The repository ships with a **GitHub Actions** pipeline defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It runs automatically on every `push` and `pull_request` targeting the `main` branch, so the same checks are enforced before a merge and again on the integrated history.
+
+### Pipeline overview
+
+```
+                ┌─── PR or push to main ───┐
+                ▼                          ▼
+┌──────────────────────┐  ┌──────────────────┐  ┌──────────────────────┐
+│    lint-and-audit    │─▶│       test       │─▶│     docker-build     │
+│ ruff · mypy · audit  │  │      pytest      │  │ dev image · prod img │
+└──────────────────────┘  └──────────────────┘  └──────────────────────┘
+```
+
+Each job only runs once the previous one has finished green (chained via `needs:`), so a failure short-circuits the rest of the pipeline.
+
+### Validation jobs (run on every PR and push to `main`)
+
+1. **`lint-and-audit`** — installs the `dev` extras (`pip install -e ".[dev]"`) and runs `ruff check .`, `ruff format --check .`, `mypy --config-file=pyproject.toml .`, and `pip-audit --skip-editable`.
+2. **`test`** — installs the `test` extras (`pip install -e ".[test]"`) and runs `python -m pytest --tb=short`. This is the same suite documented in [Testing](#testing).
+3. **`docker-build`** — uses a matrix to build both `Dockerfile.development` and `Dockerfile.production` with Docker Buildx. The images are not pushed to a registry; this is a smoke test that both Dockerfiles still build from a clean checkout.
+
+### Running the same checks locally
+
+Every job mirrors a command you can run from the virtual environment created in [Getting Started](#create-a-virtual-env-for-local-tooling):
+
+```bash
+# lint-and-audit
+ruff check .
+ruff format --check .
+mypy --config-file=pyproject.toml .
+pip-audit --skip-editable
+
+# test
+python -m pytest --tb=short
+
+# docker-build
+docker build -f Dockerfile.development -t app:dev .
+docker build -f Dockerfile.production  -t app:prod .
+```
+
+### Where the build outputs live
+
+| Output | Location |
+|---|---|
+| Lint, type check, audit and test logs | **Actions** tab on GitHub |
+| Docker images built by `docker-build`  | Ephemeral, inside the runner (not pushed) |
+
+> **Note:** This pipeline performs **validation only** — there is no release job, no tag/changelog automation, and no artifact publishing. Production images are built on the deployment host as described in [Build](#build) and [Production](#production).
+
 ## Production
 
 Production deployment is the result of completing the previous sections — it does not introduce a new flow, only the steps that are specific to running the built image on a real host.
